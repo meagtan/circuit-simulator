@@ -1,5 +1,8 @@
 package circuit;
 
+import circuit.aux.Pair;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
@@ -18,21 +21,34 @@ public class Node implements CircuitElement
         circuit.addNode(this);
 
         components = new LinkedList<>();
-        potential = new CircuitVar(this);
+        potential = new CircuitVar(this, circuit.system);
     }
+
+    // methods
 
     public Circuit getCircuit() { return circuit; }
 
-    public CircuitElement[] getNeighbors() { return (CircuitElement[]) components.toArray(); }
+    public void setRelations()
+    {
+        // reset relations containing potential variable
+        potential.resetRelations();
 
-    public CircuitVar[] getVariables() { return new CircuitVar[]{potential}; }
+        // add kcl law for neighboring currents
+        ArrayList<Pair<CircuitVar, Double>> pairs = new ArrayList<>();
 
-    public boolean remove()
+        for (Component comp : components)
+            pairs.add(new Pair<>(comp.current, comp.changeSign(1.0, this, comp.otherNode(this))));
+
+        potential.addRelation(pairs, 0);
+    }
+
+    public void remove()
     {
         components.forEach(circuit::removeComponent);
         potential.remove();
-        return true;
     }
+
+    // interface
 
     public Double getPotential()
     {
@@ -41,32 +57,6 @@ public class Node implements CircuitElement
 
     public void setPotential(double value)
     {
-        potential.setValue(value, true);
-    }
-
-    public void update()
-    {
-        potential.setNeighbors();
-
-        // set relations
-        potential.resetRelations();
-        // for each component AB, V_A - V_AB - V_B = 0
-        for (Component comp : components)
-            potential.addRelation(0, new Pair<>(potential, 1.0),
-                                     new Pair<>(comp.voltage, -1.0),
-                                     new Pair<>(comp.otherNode(this).potential, -1.0));
-    }
-
-    // add kcl to current's relations
-    protected void kcl(CircuitVar current)
-    {
-        assert current.parent.hasNeighbor(this);
-
-        LinkedList<Pair<CircuitVar, Double>> pairs = new LinkedList<>();
-
-        for (Component comp : components)
-            pairs.add(new Pair<>(comp.current, comp.changeSign(1.0, this, comp.otherNode(this))));
-
-        current.addRelation(pairs, 0); // mother of god why is this language so horrible
+        potential.setValue(value);
     }
 }

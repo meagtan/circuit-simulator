@@ -7,16 +7,12 @@ package circuit;
  */
 public interface CircuitElement
 {
-    Circuit getCircuit();
-    CircuitElement[] getNeighbors();
-    CircuitVar[] getVariables();
-    void update();
 
-    default boolean hasNeighbor(CircuitElement e)
-    {
-        for (CircuitElement e1 : getNeighbors())
-            if (e1 == e)
-                return true;
-        return false;
-    }
+    Circuit getCircuit();
+
+    // set only the relations that the element defines
+    void setRelations();
+
+    // unbind element from neighbors
+    void remove();
 }

@@ -1,4 +1,4 @@
-package circuit;
+package circuit.aux;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,6 +53,12 @@ public class Matrix
         for (int i = 0; i < rows; i++)
             array[i] = Arrays.copyOf(other.array[i], cols);
     }
+
+    // methods
+
+    public int getRows() { return rows; }
+
+    public int getCols() { return cols; }
 
     public String toString()
     {
@@ -193,14 +199,14 @@ public class Matrix
     public void adjoinRow(int i, double[] row)
     {
         createRow(i);
-        setRow(i, row);
+        addRow(i, row);
     }
 
     // adjoin row at ith position
     public void adjoinColumn(int j, double[] col)
     {
         createColumn(j);
-        setColumn(j, col);
+        addColumn(j, col);
     }
 
     // create new row at ith position
@@ -346,6 +352,14 @@ public class Matrix
             if (0 <= index && index < row.length)
                 res[index] = row[index];
 
+        return res;
+    }
+
+    public static double[] multiply(double[] row, double factor)
+    {
+        double[] res = new double[row.length];
+        for (int i = 0; i < row.length; i++)
+            res[i] = row[i] * factor;
         return res;
     }
 }

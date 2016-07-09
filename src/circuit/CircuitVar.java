@@ -1,5 +1,7 @@
 package circuit;
 
+import circuit.aux.Pair;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,63 +15,55 @@ public class CircuitVar
     CircuitElement parent;
     int varIndex;
 
-    public CircuitVar(CircuitElement e)
+    public CircuitVar(CircuitElement e, LinearSystem system)
     {
         parent = e;
-        system = e.getCircuit().system;
+        this.system = system;
         varIndex = system.newVariable();
     }
 
     public Double getValue()
     {
+        parent.getCircuit().update();
         return system.getValue(varIndex);
     }
 
-    public void setValue(Double value, boolean update)
+    public void setValue(Double value)
     {
         system.setValue(varIndex, value);
-        if (update)
-            parent.getCircuit().update(parent); // TODO only update the relations that contain this variable
     }
 
     public void remove()
     {
         system.removeVariable(varIndex);
-        parent.getCircuit().update(parent);
     }
 
     private int getIndex() { return varIndex; }
 
-    public void setNeighbors()
-    {
-        system.setNeighbors(varIndex, Arrays.stream(parent.getNeighbors())
-                .flatMapToInt(e -> Arrays.stream(e.getVariables()).mapToInt(CircuitVar::getIndex))
-                .toArray());
-    }
-
     public void resetRelations()
     {
+        // TODO make it so only the relations added are removed
         system.resetRelations(varIndex);
     }
 
     @SafeVarargs
     final public void addRelation(double constant, Pair<CircuitVar, Double>... terms)
     {
-        double[] coeffs = new double[system.relations.cols - 1];
+        double[] coeffs = new double[system.relations.getCols() - 1];
 
         for (Pair<CircuitVar, Double> term : terms)
             coeffs[term.l.varIndex] = term.r;
 
-        system.addRelation(varIndex, coeffs, constant);
+        system.addRelation(coeffs, constant);
     }
 
     public void addRelation(List<Pair<CircuitVar, Double>> terms, double constant)
     {
-        double[] coeffs = new double[system.relations.cols - 1];
+        double[] coeffs = new double[system.relations.getCols() - 1];
 
         for (Pair<CircuitVar, Double> term : terms)
             coeffs[term.l.varIndex] = term.r;
 
-        system.addRelation(varIndex, coeffs, constant);
+        system.addRelation(coeffs, constant);
     }
 }

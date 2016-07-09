@@ -1,4 +1,4 @@
-package circuit;
+package circuit.aux;
 
 /**
  * Why do I even need to create this? Because Java is a horrible language.
@@ -6,8 +6,8 @@ package circuit;
  */
 public class Pair<L, R>
 {
-    L l;
-    R r;
+    public L l;
+    public R r;
 
     public Pair(L l, R r) { this.l = l; this.r = r; }
 }

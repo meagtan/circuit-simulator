@@ -1,6 +1,6 @@
 package circuit.tests;
 
-import circuit.Matrix;
+import circuit.aux.Matrix;
 
 import java.util.Arrays;
 

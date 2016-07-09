@@ -1,5 +1,7 @@
 package circuit;
 
+import circuit.aux.Pair;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,15 +26,30 @@ public abstract class Component implements CircuitElement
         end.components.add(this);
         circuit.addComponent(this);
 
-        current = new CircuitVar(this);
-        voltage = new CircuitVar(this);
+        current = new CircuitVar(this, circuit.system);
+        voltage = new CircuitVar(this, circuit.system);
     }
+
+    // methods
 
     public Circuit getCircuit() { return circuit; }
 
-    public CircuitElement[] getNeighbors() { return new CircuitElement[]{start, end}; }
-    
-    public CircuitVar[] getVariables() { return new CircuitVar[]{current, voltage}; }
+    public void setRelations()
+    {
+        // set relations
+        current.resetRelations();
+        voltage.resetRelations();
+        setCurrentRelations();
+        setVoltageRelations();
+    }
+
+    protected abstract void setCurrentRelations();
+
+    protected void setVoltageRelations()
+    {
+        // voltage = end.potential - start.potential
+        voltage.addRelation(0, new Pair<>(voltage, 1.0), new Pair<>(start.potential, 1.0), new Pair<>(end.potential, -1.0));
+    }
 
     public void remove()
     {
@@ -43,10 +60,6 @@ public abstract class Component implements CircuitElement
         voltage.remove();
     }
 
-    protected abstract void setCurrentRelations();
-
-    protected abstract void setVoltageRelations();
-
     public Double currentFromStart()
     {
         return current.getValue();
@@ -55,15 +68,6 @@ public abstract class Component implements CircuitElement
     public Double voltageFromStart()
     {
         return voltage.getValue();
-    }
-
-    public List<Node> getNodes()
-    {
-        List<Node> res = new LinkedList<>();
-        res.add(start);
-        res.add(end);
-
-        return res;
     }
 
     public Double currentBetween(Node start, Node end)
@@ -92,20 +96,5 @@ public abstract class Component implements CircuitElement
         if (start == this.end && end == this.start)
             return -res;
         return null;
-    }
-
-    public void update()
-    {
-        // TODO adjust voltage and current's varIndex based on e
-
-        // set neighbors
-        current.setNeighbors();
-        voltage.setNeighbors();
-
-        // set relations
-        current.resetRelations();
-        voltage.resetRelations();
-        setCurrentRelations();
-        setVoltageRelations();
     }
 }

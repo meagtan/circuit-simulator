@@ -17,17 +17,11 @@ public class CurrentSource extends Component
     public void setCurrent(double value)
     {
         this.value = value;
-        current.setValue(value, true);
+        current.setValue(value);
     }
 
     protected void setCurrentRelations()
     {
-        current.setValue(value, false);
-    }
-
-    protected void setVoltageRelations()
-    {
-        // voltage = end.potential - start.potential
-        voltage.addRelation(0, new Pair<>(voltage, 1.0), new Pair<>(start.potential, 1.0), new Pair<>(end.potential, -1.0));
+        current.setValue(value);
     }
 }

@@ -25,7 +25,7 @@ public class Circuit
         if (!nodes.contains(node))
         {
             nodes.add(node);
-            update(null);
+            // update();
         }
     }
 
@@ -34,7 +34,7 @@ public class Circuit
         if (!components.contains(comp))
         {
             components.add(comp);
-            update(null);
+            // update();
         }
     }
 
@@ -42,22 +42,20 @@ public class Circuit
     {
         node.remove();
         nodes.remove(node);
-        update(node);
+        update();
     }
 
     public void removeComponent(Component comp)
     {
         comp.remove();
         components.remove(comp);
-        update(comp);
+        update();
     }
 
-    // after removing e
-    protected void update(CircuitElement e)
+    protected void update()
     {
-        // make all neighboring nodes and components update their variables and relations
-        for (CircuitElement neighbor : e.getNeighbors())
-            e.update();
+        nodes.forEach(Node::setRelations);
+        components.forEach(Component::setRelations);
     }
 
     public double getVoltageBetween(Node start, Node end)

@@ -17,17 +17,11 @@ public class VoltageSource extends Component
     public void setVoltage(double value)
     {
         this.value = value;
-        voltage.setValue(value, true);
+        voltage.setValue(value);
     }
 
     protected void setCurrentRelations()
     {
-        start.kcl(current);
-        end.kcl(current);
-    }
 
-    protected void setVoltageRelations()
-    {
-        voltage.setValue(value, false);
     }
 }
