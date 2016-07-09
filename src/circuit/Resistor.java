@@ -33,7 +33,7 @@ public class Resistor extends Component
 
     protected void setCurrentRelations()
     {
-        // Ohm's law
-        current.addRelation(0, new Pair<>(current, resistance), new Pair<>(voltage, -1.0));
+        // Ohm's law, with current the opposite direction of voltage
+        current.addRelation(0, new Pair<>(current, resistance), new Pair<>(voltage, 1.0));
     }
 }

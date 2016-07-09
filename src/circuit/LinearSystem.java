@@ -158,7 +158,7 @@ class LinearSystem
                 {
                     if (bindings.get(j) != null)
                     {
-                        relation[relation.length - 1] += bindings.get(j) * relation[j];
+                        relation[relation.length - 1] -= bindings.get(j) * relation[j];
                         relation[j] = 0;
                     }
                 }
