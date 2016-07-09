@@ -54,7 +54,7 @@ public class CircuitVar
         for (Pair<CircuitVar, Double> term : terms)
             coeffs[term.l.varIndex] = term.r;
 
-        system.addRelation(coeffs, constant);
+        system.addRelation(varIndex, coeffs, constant);
     }
 
     public void addRelation(List<Pair<CircuitVar, Double>> terms, double constant)
@@ -64,6 +64,6 @@ public class CircuitVar
         for (Pair<CircuitVar, Double> term : terms)
             coeffs[term.l.varIndex] = term.r;
 
-        system.addRelation(coeffs, constant);
+        system.addRelation(varIndex, coeffs, constant);
     }
 }

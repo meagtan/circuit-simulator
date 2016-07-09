@@ -18,12 +18,12 @@ public class CircuitTest
 
         c.setPotential(0);
 
-        new VoltageSource(circuit, c, a, 9);
+        VoltageSource ac = new VoltageSource(circuit, c, a, 9);
 
         new Resistor(circuit, a, b, 1);
         Resistor r = new Resistor(circuit, b, c, 3);
         new Resistor(circuit, b, c, 2 * r.getResistance());
 
-        System.out.println("The current through BC is " + r.currentFromStart());
+        System.out.println("The current through AC is " + ac.currentFromStart());
     }
 }

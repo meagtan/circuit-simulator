@@ -14,14 +14,17 @@ class LinearSystem
 {
     ArrayList<Double> values,   // assigned values
                       bindings; // result of evaluation
-    Matrix relations;  // contains all linear relations
+    Matrix relations,   // contains all linear relations
+           relIndices;  // maps each index to the start and end of the rows in relations that correspond to that index
 
     LinearSystem()
     {
         values = new ArrayList<>();
         bindings = new ArrayList<>();
         relations = new Matrix();
+        relIndices = new Matrix(-1);
         relations.resize(0, 1); // add column for constant terms
+        relIndices.resize(2, 0); // two rows representing start and end
     }
 
     // methods
@@ -33,6 +36,7 @@ class LinearSystem
         bindings.add(null);
 
         relations.createColumn(0); // add variable
+        relIndices.resize(0, 1);
 
         return values.size() - 1;
     }
@@ -74,26 +78,55 @@ class LinearSystem
         return res;
     }
 
-    protected int addRelation(double[] coeffs, double constant)
+    protected void addRelation(int varIndex, double[] coeffs, double constant)
     {
-        if (!Matrix.support(coeffs).isEmpty())
+        double[] bounds = relIndices.getColumn(varIndex);
+        int start = (int) bounds[0], end = (int) bounds[1];
+
+        // check the varIndex column of relIndices
+        if (start == -1) // if no relation is defined for varIndex
         {
+            // add relation to the bottom of relations
             relations.adjoinRow(-1, coeffs);
             relations.set(-1, -1, constant);
-            return relations.getRows() - 1;
+
+            // set indices
+            relIndices.set(0, varIndex, relations.getRows() - 1);
+            relIndices.set(1, varIndex, relations.getRows() - 1);
         }
-        return -1;
+        else
+        {
+            // add relation to end + 1
+            relations.adjoinRow(end + 1, coeffs);
+            relations.set(end + 1, -1, constant);
+
+            // update end
+            relIndices.set(1, varIndex, end + 1);
+        }
     }
 
-    // remove relations concerning varIndex
+    // remove relations defined by varIndex
     protected void resetRelations(int varIndex)
     {
-        // remove relations with nonzero coefficient for varIndex
-        // iterate from end so deletion doesn't change indices
-        for (int i = relations.getRows() - 1; i >= 0; i--)
-            if (relations.get(i, varIndex) != 0)
-                relations.deleteRow(i);
+        double[] bounds = relIndices.getColumn(varIndex);
+        int start = (int) bounds[0], end = (int) bounds[1];
 
+        // remove relations corresponding to varIndex
+        if (start != -1)
+            for (int i = start; i <= end; i++)
+                relations.deleteRow(start); // the next row gets pushed up
+
+        // reset relation indices
+        relIndices.set(0, varIndex, -1);
+        relIndices.set(1, varIndex, -1);
+
+        // shift the index of every relation after varIndex's up, including end
+        for (int j = 0; j < relIndices.getCols(); j++)
+            for (int i = 0; i <= 1; i++)
+                if (relIndices.get(i, j) > start)
+                    relIndices.set(i, j, relIndices.get(i, j) + start - end);
+
+        // reset bindings
         bindings.set(varIndex, values.get(varIndex));
     }
 
@@ -111,8 +144,6 @@ class LinearSystem
 
         rels.resize(0, relations.getCols());
         visited.add(varIndex);
-
-        System.out.println(relations);
 
         // load rels
         for (int i = 0; i < visited.size(); i++)
