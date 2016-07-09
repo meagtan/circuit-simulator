@@ -16,7 +16,7 @@ public class CircuitTest
         b = new Node(circuit);
         c = new Node(circuit);
 
-        // c.setPotential(0);
+        c.setPotential(1);
 
         VoltageSource ac = new VoltageSource(circuit, c, a, 9);
 
